@@ -1,52 +1,82 @@
 package org.example.projectnu.common.security
 
-import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
+import javax.crypto.SecretKey
 
 @Component
-class JwtTokenProvider {
+class JwtTokenProvider(
+    @Value("\${jwt.secret}") secret: String,
+    @Value("\${jwt.expiration}") private val expirationTime: Long
+) {
 
-    @Value("\${jwt.secret}")
-    private lateinit var secretKey: String
-
-    @Value("\${jwt.expiration}")
-    private var expirationTime: Long = 0
+    private val secretKey: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
 
     fun generateToken(userDetails: UserDetails): String {
-        val claims = mapOf(
-            "loginId" to userDetails.username,
-            "email" to (userDetails as CustomUserDetails).email,
-            "role" to (userDetails as CustomUserDetails).role
-        )
+        val claims = Jwts.claims().apply {
+            this["loginId"] = userDetails.username
+            this["email"] = (userDetails as CustomUserDetails).email
+            this["role"] = userDetails.role
+        }
+
+        val now = Date()
+        val validity = Date(now.time + expirationTime)
 
         return Jwts.builder()
             .setClaims(claims)
-            .setIssuedAt(Date())
-            .setExpiration(Date(System.currentTimeMillis() + expirationTime))
-            .signWith(SignatureAlgorithm.HS512, secretKey)
+            .setIssuedAt(now)
+            .setExpiration(validity)
+            .signWith(secretKey, SignatureAlgorithm.HS512)
             .compact()
     }
 
     fun validateToken(token: String): Boolean {
-        try {
-            val claims: Claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body
-            return !claims.expiration.before(Date())
+        return try {
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .body
+            !claims.expiration.before(Date())
         } catch (e: Exception) {
-            return false
+            false
         }
     }
 
     fun getUsernameFromToken(token: String): String? {
         return try {
-            val claims: Claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .body
             claims["loginId"] as String
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun getAuthentication(token: String): Authentication {
+        val claims = Jwts.parserBuilder()
+            .setSigningKey(secretKey)
+            .build()
+            .parseClaimsJws(token)
+            .body
+
+        val username = claims["loginId"] as String
+        val email = claims["email"] as String
+        val role = claims["role"] as String
+        val authorities = listOf(SimpleGrantedAuthority(role))
+
+        val userDetails = CustomUserDetails(username, "", authorities, email, role)
+        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 }

@@ -1,7 +1,7 @@
 package org.example.projectnu.test.controller
 
 import org.example.projectnu.account.service.AccountService
-import org.example.projectnu.common.`object`.Response
+import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.service.EmailService
 import org.example.projectnu.common.service.SlackService

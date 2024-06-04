@@ -1,6 +1,6 @@
 package org.example.projectnu.common.exception
 
-import org.example.projectnu.common.`object`.Response
+import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.exception.custom.BadRequestException
 import org.example.projectnu.common.exception.custom.NotFoundException

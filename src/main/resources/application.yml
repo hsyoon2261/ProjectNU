@@ -41,7 +41,7 @@ logging:
         SQL: debug
         type.descriptor.sql: trace
 springdoc:
-  packages-to-scan: org.example.projectnu
+  packages-to-scan: com.example.demo
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:

@@ -3,7 +3,7 @@ package org.example.projectnu.account.controller
 import org.example.projectnu.account.dto.AccountResponseDto
 import org.example.projectnu.account.dto.RegisterAccountRequestDto
 import org.example.projectnu.account.service.AccountService
-import org.example.projectnu.common.`object`.Response
+import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity

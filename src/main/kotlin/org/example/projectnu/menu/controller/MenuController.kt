@@ -1,6 +1,6 @@
 package org.example.projectnu.menu.controller
 
-import org.example.projectnu.common.`object`.Response
+import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.dto.MenuListRequestDto

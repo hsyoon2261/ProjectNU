@@ -1,4 +1,6 @@
-package org.example.projectnu.common.`object`
+package org.example.projectnu.common.dto
+
+import org.example.projectnu.common.`object`.ResultCode
 
 data class Response<T>(
     val code: ResultCode,
