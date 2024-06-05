@@ -13,7 +13,6 @@ class MenuService(
     private val repository: MenuListRepository,
     private val slackService: SlackService,
 ) {
-
     fun getAllMenus(): List<MenuListDto> {
         return repository.findAll().map { menu ->
             MenuListDto(
@@ -43,7 +42,6 @@ class MenuService(
         if (repository.existsByName(menuDto.name)) {
             throw BadRequestException("Menu with name '${menuDto.name}' already exists")
         }
-
         val menu = MenuList(
             name = menuDto.name,
             category = menuDto.category,
@@ -71,7 +69,6 @@ class MenuService(
             description = if (menuDto.description.isNullOrEmpty()) menu.description else menuDto.description,
             url = if (menuDto.url.isNullOrEmpty()) menu.url else menuDto.url
         )
-
         val savedMenu = repository.save(updatedMenu)
         return MenuListDto(
             id = savedMenu.id,

@@ -1,6 +1,8 @@
 package org.example.projectnu.common.exception.custom
 
-class NotFoundException : RuntimeException {
-    constructor() : super()
-    constructor(errorMessage: String) : super(errorMessage)
+import org.example.projectnu.common.`object`.ResultCode
+
+class NotFoundException : BasicException {
+    constructor() : super(ResultCode.NOT_FOUND)
+    constructor(errorMessage: String) : super(ResultCode.NOT_FOUND, errorMessage)
 }

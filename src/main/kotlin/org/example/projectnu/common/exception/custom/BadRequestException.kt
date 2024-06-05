@@ -1,6 +1,8 @@
 package org.example.projectnu.common.exception.custom
 
-class BadRequestException : RuntimeException {
-    constructor() : super()
-    constructor(errorMessage: String) : super(errorMessage)
+import org.example.projectnu.common.`object`.ResultCode
+
+class BadRequestException : BasicException {
+    constructor() : super(ResultCode.BAD_REQUEST)
+    constructor(errorMessage: String) : super(ResultCode.BAD_REQUEST, errorMessage)
 }

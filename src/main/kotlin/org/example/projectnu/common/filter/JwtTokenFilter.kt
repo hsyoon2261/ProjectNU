@@ -1,6 +1,5 @@
 package org.example.projectnu.common.filter
 
-
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
@@ -8,12 +7,10 @@ import jakarta.servlet.http.HttpServletResponse
 import org.example.projectnu.common.`object`.JwtConstants
 import org.example.projectnu.common.security.JwtTokenProvider
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 
 class JwtTokenFilter(private val jwtTokenProvider: JwtTokenProvider) : OncePerRequestFilter() {
-
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -21,7 +18,7 @@ class JwtTokenFilter(private val jwtTokenProvider: JwtTokenProvider) : OncePerRe
         filterChain: FilterChain
     ) {
         val token = resolveToken(request)
-        if (token != null && jwtTokenProvider.validateToken(token)) {
+        if (token != null) {
             val auth = jwtTokenProvider.getAuthentication(token)
             SecurityContextHolder.getContext().authentication = auth
         }

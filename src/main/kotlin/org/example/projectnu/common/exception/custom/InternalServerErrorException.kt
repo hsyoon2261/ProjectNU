@@ -1,6 +1,9 @@
 package org.example.projectnu.common.exception.custom
 
-class InternalServerErrorException : RuntimeException {
-    constructor() : super()
-    constructor(errorMessage: String) : super(errorMessage)
+import org.example.projectnu.common.`object`.ResultCode
+
+class InternalServerErrorException : BasicException {
+    constructor() : super(ResultCode.INTERNAL_SERVER_ERROR)
+    constructor(errorMessage: String) : super(ResultCode.INTERNAL_SERVER_ERROR, errorMessage)
 }
+

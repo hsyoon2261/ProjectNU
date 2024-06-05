@@ -9,7 +9,6 @@ class SlackService(
     private val slackProperties: SlackProperties
 ) {
     private val restTemplate = RestTemplate()
-
     fun sendMessage(channel: String, message: String) {
         val payload = mapOf(
             "text" to message,

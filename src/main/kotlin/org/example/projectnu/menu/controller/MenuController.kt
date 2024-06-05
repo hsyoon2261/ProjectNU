@@ -6,12 +6,14 @@ import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.dto.MenuListRequestDto
 import org.example.projectnu.menu.service.MenuService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/menus")
 class MenuController(private val menuService: MenuService) {
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     fun getAllMenus(): ResponseEntity<Response<List<MenuListDto>>> {
         val menus = menuService.getAllMenus()

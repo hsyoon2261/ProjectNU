@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class EmailService(private val mailSender: JavaMailSender) {
-
     fun sendVerificationEmail(to: String, code: String) {
         val message = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(message, true)

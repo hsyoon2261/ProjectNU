@@ -7,4 +7,11 @@ data class Response<T>(
     val subcode: String? = null,
     val message: String? = null,
     val data: T? = null,
-)
+) {
+    constructor(resultCode: ResultCode, message: String? = null, data: T? = null) : this(
+        code = resultCode,
+        subcode = resultCode.description,
+        message = message,
+        data = data
+    )
+}

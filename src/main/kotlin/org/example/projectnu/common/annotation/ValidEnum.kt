@@ -19,7 +19,6 @@ annotation class ValidEnum(
 
 class ValidEnumValidator : ConstraintValidator<ValidEnum, Any> {
     private lateinit var enumValues: Array<out Enum<*>>
-
     override fun initialize(annotation: ValidEnum) {
         enumValues = annotation.enumClass.java.enumConstants
     }
@@ -28,6 +27,6 @@ class ValidEnumValidator : ConstraintValidator<ValidEnum, Any> {
         if (value == null) {
             return true
         }
-        return enumValues.any {it.name == value.toString()}
+        return enumValues.any { it.name == value.toString() }
     }
 }

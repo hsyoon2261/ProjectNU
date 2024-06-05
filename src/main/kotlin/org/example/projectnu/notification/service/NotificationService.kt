@@ -1,8 +1,8 @@
 package org.example.projectnu.notification.service
 
 import org.example.projectnu.account.service.AccountService
-import org.example.projectnu.menu.service.MenuService
 import org.example.projectnu.common.service.SlackService
+import org.example.projectnu.menu.service.MenuService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
@@ -12,7 +12,6 @@ class NotificationService(
     private val menuService: MenuService,
     private val slackService: SlackService
 ) {
-
     @Scheduled(cron = "0 47 12 * * ?", zone = "Asia/Seoul")
     fun sendMenu() {
         val menuList = menuService.getAllMenus()

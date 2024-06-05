@@ -1,12 +1,12 @@
 package org.example.projectnu.test.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import org.example.projectnu.account.service.AccountService
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.service.EmailService
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
-import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +21,6 @@ class TestController(
     private val emailService: EmailService,
     private val accountService: AccountService
 ) {
-
     @GetMapping("/success")
     fun getSuccess(): ResponseEntity<Response<String>> {
         val data = "This is a successful response"
@@ -75,5 +74,11 @@ class TestController(
     fun sendSlackToAdmin(@RequestParam message: String): ResponseEntity<Response<String>> {
         accountService.sendSlackMessageToAdmin(message)
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Message sent to admin"))
+    }
+
+    @GetMapping("/getAdminToken")
+    fun getAdminToken(): ResponseEntity<Response<String>> {
+        val token = accountService.getAdminToken()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = token))
     }
 }

@@ -1,6 +1,8 @@
 package org.example.projectnu.common.exception.custom
 
-class NotUsedException : RuntimeException {
-    constructor() : super()
-    constructor(errorMessage: String) : super(errorMessage)
+import org.example.projectnu.common.`object`.ResultCode
+
+class NotUsedException : BasicException {
+    constructor() : super(ResultCode.NOT_USED)
+    constructor(errorMessage: String) : super(ResultCode.NOT_USED, errorMessage)
 }

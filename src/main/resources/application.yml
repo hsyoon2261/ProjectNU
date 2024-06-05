@@ -41,7 +41,7 @@ logging:
         SQL: debug
         type.descriptor.sql: trace
 springdoc:
-  packages-to-scan: com.example.demo
+  packages-to-scan: org.example.projectnu
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
@@ -53,5 +53,5 @@ slack:
   webhook:
     url: https://hooks.slack.com/services/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
 jwt:
-  secret: yourSecretKeyHere
+  secret: your-256-bit-secret-key-here-should-be-32-characters-long-nsus-lab
   expiration: 3600000
