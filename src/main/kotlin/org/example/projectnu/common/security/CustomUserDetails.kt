@@ -8,7 +8,8 @@ class CustomUserDetails(
     private val password: String,
     private val authorities: Collection<GrantedAuthority>,
     val email: String,
-    val role: String
+    val role: String,
+    val jSessionId: String // 새로운 프로퍼티 추가
 ) : UserDetails {
     override fun getAuthorities(): Collection<GrantedAuthority> = authorities
     override fun getPassword(): String = password

@@ -1,4 +1,4 @@
-package org.example.projectnu.account.dto
+package org.example.projectnu.account.dto.response
 
 import org.example.projectnu.account.status.UserRole
 

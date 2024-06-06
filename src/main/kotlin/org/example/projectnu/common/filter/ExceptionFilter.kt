@@ -27,7 +27,6 @@ class ExceptionFilter(
             sendError(response, e.resultCode, e.message)
         } catch (e: Exception) {
             sendError(response, ResultCode.INTERNAL_SERVER_ERROR, e.message )
-            throw e
         }
 
     }

@@ -3,6 +3,7 @@ package org.example.projectnu.common.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
@@ -18,6 +19,10 @@ class WebConfig {
                     .allowedHeaders("*")
                     .allowCredentials(true)
             }
+
+//            override fun addInterceptors(registry: InterceptorRegistry) {
+//                registry.addInterceptor(CaptureSessionInterceptor()).addPathPatterns("/api/accounts/signIn")
+//            }
         }
     }
 }

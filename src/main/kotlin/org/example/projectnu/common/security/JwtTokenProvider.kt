@@ -5,6 +5,8 @@ import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.example.projectnu.account.repository.AccountRepository
+import org.example.projectnu.common.exception.custom.InvalidTokenException
 import org.example.projectnu.common.exception.custom.UnAuthorizedException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -18,15 +20,18 @@ import javax.crypto.SecretKey
 @Component
 class JwtTokenProvider(
     @Value("\${jwt.secret}") private val secret: String,
-    @Value("\${jwt.expiration}") private val expirationTime: Long
+    @Value("\${jwt.expiration}") private val expirationTime: Long,
+    private val accountRepository: AccountRepository
 ) {
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
 
+    //todo 함수 세분화
     fun generateToken(userDetails: UserDetails): String {
         val claims = Jwts.claims().apply {
             this["loginId"] = userDetails.username
             this["email"] = (userDetails as CustomUserDetails).email
             this["role"] = userDetails.role
+            this["sessionId"] = userDetails.jSessionId
         }
         val now = Date()
         val validity = Date(now.time + expirationTime)
@@ -39,7 +44,8 @@ class JwtTokenProvider(
             .compact()
     }
 
-    private fun parseToken(token: String): Claims {
+
+    fun parseToken(token: String): Claims {
         return try {
             Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -47,19 +53,13 @@ class JwtTokenProvider(
                 .parseClaimsJws(token)
                 .body
         } catch (e: ExpiredJwtException) {
-            throw UnAuthorizedException("Token expired exception")
+            e.claims
         } catch (e: Exception) {
-            throw UnAuthorizedException("Invalid token")
+            throw InvalidTokenException("Invalid token")
         }
     }
 
-    fun getAuthentication(token: String): Authentication {
-        val claims = parseToken(token)
-        val username = claims["loginId"] as String
-        val email = claims["email"] as String
-        val role = claims["role"] as String
-        val authorities = listOf(SimpleGrantedAuthority(role))
-        val userDetails = CustomUserDetails(username, "", authorities, email, role)
-        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+    fun getAuthentication(token: String): Claims {
+        return parseToken(token)
     }
 }

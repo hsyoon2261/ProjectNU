@@ -14,4 +14,6 @@ interface AccountRepository : JpaRepository<Account, Long> {
 
     @Query("SELECT COUNT(a) FROM Account a WHERE a.role = :role")
     fun countByRole(role: UserRole): Long
+
+    fun findByLoginId(loginId: String): Account?
 }

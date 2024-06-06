@@ -46,8 +46,8 @@ logging:
   level:
     org:
       hibernate:
-        SQL: ${LOGGING_LEVEL_HIBERNATE_SQL}
-        type.descriptor.sql: ${LOGGING_LEVEL_HIBERNATE_TYPE_DESCRIPTOR_SQL}
+        SQL: off
+        type.descriptor.sql: off
 springdoc:
   packages-to-scan: ${SPRINGDOC_PACKAGES_TO_SCAN}
   default-consumes-media-type: ${SPRINGDOC_DEFAULT_CONSUMES_MEDIA_TYPE}

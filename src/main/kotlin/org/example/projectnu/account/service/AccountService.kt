@@ -1,7 +1,9 @@
 package org.example.projectnu.account.service
 
-import org.example.projectnu.account.dto.AccountResponseDto
-import org.example.projectnu.account.dto.RegisterAccountRequestDto
+import org.example.projectnu.account.dto.response.AccountResponseDto
+import org.example.projectnu.account.dto.request.RegisterAccountRequestDto
+import org.example.projectnu.account.dto.request.SignInRequestDto
+import org.example.projectnu.account.dto.response.SignInResponseDto
 import org.example.projectnu.account.entity.Account
 import org.example.projectnu.account.repository.AccountRepository
 import org.example.projectnu.account.status.UserRole
@@ -10,6 +12,7 @@ import org.example.projectnu.common.security.CustomUserDetails
 import org.example.projectnu.common.security.JwtTokenProvider
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
+import org.example.projectnu.common.util.mapper.Authorize
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 
@@ -58,21 +61,31 @@ class AccountService(
         }
     }
 
-    fun issueToken(account: Account): String {
-        val authorities = listOf(SimpleGrantedAuthority(account.role.name))
-        val userDetails = CustomUserDetails(
-            account.loginId,
-            account.password,
-            authorities,
-            account.email,
-            account.role.name
-        )
-        return jwtTokenProvider.generateToken(userDetails)
+    fun issueToken(account: Account, jSessionId: String = "ADMIN"): String {
+        return jwtTokenProvider.generateToken(Authorize.getCustomUserDetails(account, jSessionId))
     }
 
     fun getAdminToken(): String {
         val adminAccount = accountRepository.findByRole(UserRole.ADMIN).firstOrNull()
             ?: throw BadRequestException("No ADMIN user found")
         return issueToken(adminAccount);
+    }
+
+    fun getAccountByUserName(username: String): Account? {
+        return accountRepository.findByLoginId(username)
+    }
+
+    fun signIn(signInRequest: SignInRequestDto, jSessionId: String): SignInResponseDto {
+        val account = getAccountByUserName(signInRequest.loginId)
+            ?: throw BadRequestException("Account with login ID '${signInRequest.loginId}' does not exist")
+
+        val decryptedPassword = getDecryptedPassword(account)
+        if (decryptedPassword != signInRequest.password) {
+            throw BadRequestException("Invalid password")
+        }
+
+        val jwtToken = issueToken(account, jSessionId)
+
+        return SignInResponseDto(jwtToken = jwtToken)
     }
 }

@@ -1,6 +1,7 @@
 package org.example.projectnu.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.example.projectnu.account.repository.AccountRepository
 import org.example.projectnu.common.filter.ExceptionFilter
 import org.example.projectnu.common.filter.JwtTokenFilter
 import org.example.projectnu.common.filter.RequestLoggingFilter
@@ -20,7 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class WebSecurityConfig(
     private val jwtTokenProvider: JwtTokenProvider,
     private val requestLoggingFilter: RequestLoggingFilter,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    //todo 이거 이상한가..
+    private val accountRepository: AccountRepository
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -37,10 +40,11 @@ class WebSecurityConfig(
                         "/configuration/**",
                         "/test/**",
                         "/redis-test/**",
+                        "/api/accounts/signin",
                     ).permitAll()
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }
-            .addFilterBefore(JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtTokenFilter(jwtTokenProvider,accountRepository), UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(requestLoggingFilter, JwtTokenFilter::class.java)
             .addFilterBefore(ExceptionFilter(objectMapper), RequestLoggingFilter::class.java)
 
