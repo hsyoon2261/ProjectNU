@@ -1,65 +1,65 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT}
   servlet:
-    context-path: /
+    context-path: ${SERVER_CONTEXT_PATH}
     encoding:
       charset: UTF-8
-      enabled: true
-      force: true
+      enabled: ${SERVER_ENCODING_ENABLED}
+      force: ${SERVER_ENCODING_FORCE}
 spring:
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/study
-    username: root
-    password: 1234
+    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   jpa:
-    open-in--view: true
+    open-in-view: ${JPA_OPEN_IN_VIEW}
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${HIBERNATE_DDL_AUTO}
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
-        highlight_sql: true
+        show_sql: ${HIBERNATE_SHOW_SQL}
+        format_sql: ${HIBERNATE_FORMAT_SQL}
+        highlight_sql: ${HIBERNATE_HIGHLIGHT_SQL}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: crashreport@nsuslab.com
-    password: Tupa0747
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_SMTP_AUTH}
           starttls:
-            enable: true
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE}
   redis:
-    host: localhost
-    port: 6379
-    default-expire-time: PT24H
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    default-expire-time: ${REDIS_DEFAULT_EXPIRE_TIME}
     pool:
-      max-active: 20
-      max-idle: 20
-      min-idle: 5
+      max-active: ${REDIS_POOL_MAX_ACTIVE}
+      max-idle: ${REDIS_POOL_MAX_IDLE}
+      min-idle: ${REDIS_POOL_MIN_IDLE}
 logging:
   pattern:
-    console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+    console: ${LOGGING_PATTERN_CONSOLE}
   level:
     org:
       hibernate:
-        SQL: debug
-        type.descriptor.sql: trace
+        SQL: ${LOGGING_LEVEL_HIBERNATE_SQL}
+        type.descriptor.sql: ${LOGGING_LEVEL_HIBERNATE_TYPE_DESCRIPTOR_SQL}
 springdoc:
-  packages-to-scan: org.example.projectnu
-  default-consumes-media-type: application/json;charset=UTF-8
-  default-produces-media-type: application/json;charset=UTF-8
+  packages-to-scan: ${SPRINGDOC_PACKAGES_TO_SCAN}
+  default-consumes-media-type: ${SPRINGDOC_DEFAULT_CONSUMES_MEDIA_TYPE}
+  default-produces-media-type: ${SPRINGDOC_DEFAULT_PRODUCES_MEDIA_TYPE}
   swagger-ui:
-    path: /
-    disable-swagger-default-url: false
-    display-request-duration: true
-    operations-sorter: alpha
+    path: ${SWAGGER_UI_PATH}
+    disable-swagger-default-url: ${SWAGGER_UI_DISABLE_DEFAULT_URL}
+    display-request-duration: ${SWAGGER_UI_DISPLAY_REQUEST_DURATION}
+    operations-sorter: ${SWAGGER_UI_OPERATIONS_SORTER}
 slack:
   webhook:
-    url: https://hooks.slack.com/services/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
+    url: ${SLACK_WEBHOOK_URL}
 jwt:
-  secret: your-256-bit-secret-key-here-should-be-32-characters-long-nsus-lab
-  expiration: 3600000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}

@@ -62,3 +62,7 @@ out/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+
+
+# Config
+application.properties
