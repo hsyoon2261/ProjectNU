@@ -1,5 +1,6 @@
 package org.example.projectnu.account.controller
 
+import jakarta.annotation.security.PermitAll
 import jakarta.validation.Valid
 import org.example.projectnu.account.dto.AccountResponseDto
 import org.example.projectnu.account.dto.RegisterAccountRequestDto

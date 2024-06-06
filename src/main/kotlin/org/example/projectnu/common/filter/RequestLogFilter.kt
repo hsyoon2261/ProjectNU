@@ -2,23 +2,24 @@ package org.example.projectnu.common.filter
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.util.ContentCachingRequestWrapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
-import jakarta.servlet.http.HttpFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import java.io.BufferedReader
 import java.io.IOException
 
 @Component
-class RequestLoggingFilter : HttpFilter() {
+class RequestLoggingFilter : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
 
     @Throws(IOException::class, ServletException::class)
-    override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
-        val curlCommand = buildCurlCommand(request)
+    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+        val wrappedRequest = ContentCachingRequestWrapper(request)
+        filterChain.doFilter(wrappedRequest, response)
+        val curlCommand = buildCurlCommand(wrappedRequest)
         logger.info(curlCommand)
-        chain.doFilter(request, response)
     }
 
     private fun buildCurlCommand(request: HttpServletRequest): String {
@@ -41,24 +42,9 @@ class RequestLoggingFilter : HttpFilter() {
     }
 
     private fun getBody(request: HttpServletRequest): String {
-        val stringBuilder = StringBuilder()
-        var bufferedReader: BufferedReader? = null
-        try {
-            val inputStream = request.inputStream
-            if (inputStream != null) {
-                bufferedReader = BufferedReader(inputStream.reader())
-                var line: String? = bufferedReader.readLine()
-                while (line != null) {
-                    stringBuilder.append(line)
-                    line = bufferedReader.readLine()
-                }
-            }
-        } catch (ex: IOException) {
-            // Handle the exception
-        } finally {
-            bufferedReader?.close()
-        }
-        val body = stringBuilder.toString()
-        return if (body.isNotEmpty()) "--data '$body'" else ""
+        val inputStream = request.inputStream
+        val cachedRequest = request as ContentCachingRequestWrapper
+        val body = cachedRequest.contentAsByteArray
+        return if (body.isNotEmpty()) "--data '${String(body)}'" else ""
     }
 }

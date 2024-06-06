@@ -30,6 +30,6 @@ class SlackService(
             "text" to testMessage,
             "channel" to "@$name"
         )
-        restTemplate.postForEntity(url, payload, String::class.java)
+        restTemplate.postForEntity("https://hooks.slack.com/services/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", payload, String::class.java)
     }
 }

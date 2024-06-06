@@ -27,6 +27,7 @@ class WebSecurityConfig(
         http
             .authorizeHttpRequests { requests ->
                 requests
+                    .requestMatchers(HttpMethod.POST, "/api/accounts/register").permitAll() // 해당 엔드포인트 허용
                     .requestMatchers(
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
@@ -35,6 +36,7 @@ class WebSecurityConfig(
                         "/webjars/**",
                         "/configuration/**",
                         "/test/**",
+                        "/redis-test/**",
                     ).permitAll()
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }

@@ -33,20 +33,4 @@ class SwaggerConfig {
             .description("Demo Web 테스트")
             .version("1.0.0")
     }
-
-    @Bean
-    fun customGlobalResponses(): OpenApiCustomizer {
-        return OpenApiCustomizer { openApi ->
-            openApi.paths.values.forEach { pathItem ->
-                pathItem.readOperations().forEach { operation ->
-                    val apiResponses = operation.responses
-                    apiResponses.addApiResponse("400", createApiResponse("Bad Request - Operation failed"))
-                }
-            }
-        }
-    }
-
-    private fun createApiResponse(description: String): ApiResponse {
-        return ApiResponse().description(description)
-    }
 }

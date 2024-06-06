@@ -2,25 +2,28 @@ package org.example.projectnu.test.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import org.example.projectnu.account.service.AccountService
+import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.service.EmailService
 import org.example.projectnu.common.service.SlackService
+import org.example.projectnu.common.service.RedisService
 import org.example.projectnu.common.util.AesUtil
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
+@RedisIndex(3)
 @RestController
 @RequestMapping("/test")
 class TestController(
     private val slackService: SlackService,
     private val emailService: EmailService,
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val redisService: RedisService
 ) {
+
     @GetMapping("/success")
     fun getSuccess(): ResponseEntity<Response<String>> {
         val data = "This is a successful response"
@@ -81,4 +84,35 @@ class TestController(
         val token = accountService.getAdminToken()
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = token))
     }
+
+    @RedisIndex(5)
+    @PostMapping("/redis/set")
+    fun setRedisValue(@RequestParam key: String, @RequestParam value: String): ResponseEntity<Response<String>> {
+        redisService.set(key, value)
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Value set successfully"))
+    }
+
+    // Redis String Get API
+    @GetMapping("/redis/get")
+    fun getRedisValue(@RequestParam key: String): ResponseEntity<Response<String>> {
+        val value = redisService.get(key) as? String
+        return if (value != null) {
+            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = value))
+        } else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response(ResultCode.FAILURE, message = "Key not found"))
+        }
+    }
+
+    // Redis String Delete API
+    @DeleteMapping("/redis/delete")
+    fun deleteRedisValue(@RequestParam key: String): ResponseEntity<Response<String>> {
+        redisService.delete(key)
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Value deleted successfully"))
+    }
+
+//    @DeleteMapping("/redis/flushall")
+//    fun flushAllRedis(): ResponseEntity<Response<String>> {
+//        redisService.f()
+//        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "All data deleted successfully"))
+//    }
 }

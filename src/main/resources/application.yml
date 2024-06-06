@@ -32,6 +32,14 @@ spring:
           auth: true
           starttls:
             enable: true
+  redis:
+    host: localhost
+    port: 6379
+    default-expire-time: PT24H
+    pool:
+      max-active: 20
+      max-idle: 20
+      min-idle: 5
 logging:
   pattern:
     console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
@@ -46,7 +54,7 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     path: /
-    disable-swagger-default-url: true
+    disable-swagger-default-url: false
     display-request-duration: true
     operations-sorter: alpha
 slack:
