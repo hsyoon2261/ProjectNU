@@ -7,6 +7,7 @@ import org.example.projectnu.menu.dto.MenuListRequestDto
 import org.example.projectnu.menu.entity.MenuList
 import org.example.projectnu.menu.repository.MenuListRepository
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class MenuService(
@@ -85,5 +86,21 @@ class MenuService(
         } else {
             throw IllegalArgumentException("Menu not found")
         }
+    }
+
+    fun getRandomThreeMenuItems(): List<MenuListDto> {
+        val allMenuList = getAllMenus()
+        return getRandomMenuItems(allMenuList,3);
+    }
+
+    private fun getRandomMenuItems(menuList: List<MenuListDto>, count: Int): List<MenuListDto>{
+        if (menuList.size <= count) {
+            return menuList
+        }
+
+        val shuffledList = menuList.toMutableList()
+        shuffledList.shuffle()
+
+        return shuffledList.take(count)
     }
 }
