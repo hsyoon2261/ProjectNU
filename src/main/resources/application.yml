@@ -63,3 +63,6 @@ slack:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+jira:
+  secret: ${JIRA_SECRET}
+  email: ${JIRA_EMAIL}

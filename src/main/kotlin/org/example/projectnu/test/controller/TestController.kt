@@ -1,15 +1,18 @@
 package org.example.projectnu.test.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.example.projectnu.account.service.AccountService
 import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.dto.Response
-import org.example.projectnu.common.event.args.TaskEvent
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.EmailService
-import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.service.RedisService
+import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
 import org.example.projectnu.jira.service.CaptureJiraService
 import org.example.projectnu.test.event.args.TestTask
@@ -17,6 +20,7 @@ import org.example.projectnu.test.service.TestService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import kotlin.system.measureTimeMillis
 
 @RedisIndex(3)
 @RestController
@@ -141,6 +145,124 @@ class TestController(
         val pendingTasks = taskScheduler.getTotalPendingTasks()
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = pendingTasks))
     }
+
+    @GetMapping("/simpleTest")
+    fun simpleTest(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
+        var result = 0
+        val tasks = totalTasks ?: 100 // 기본값 설정
+        val time = measureTimeMillis {
+            runBlocking {
+                for (i in 1..tasks) {
+                    val testTask = TestTask("test$i")
+                    result += testTask.execute()
+                }
+            }
+        }
+        val totalResult = totalTasks
+        return if (result == totalResult) {
+            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
+        } else {
+            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
+        }
+    }
+
+    @GetMapping("/schedulerTest")
+    fun schedulerTest(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
+        var result = 0
+        val tasks = totalTasks ?: 100 // 기본값 설정
+        val batchSize = 50000
+        val time = measureTimeMillis {
+            runBlocking {
+                val batches = (1..tasks).chunked(batchSize)
+                for (batch in batches) {
+                    val deferredResults = batch.map { i ->
+                        val testTask = TestTask("test$i")
+                        async {
+                            taskScheduler.publishEvent(testTask)
+                        }
+                    }
+                    result += deferredResults.awaitAll().sum()
+                }
+            }
+        }
+        return if (result == tasks) {
+            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
+        } else {
+            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
+        }
+    }
+
+    @GetMapping("/schedulerTestBulk")
+    fun schedulerTestBulk(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
+        var result = 0
+        val tasks = totalTasks ?: 100 // 기본값 설정
+        val batchSize = 50000
+        val time = measureTimeMillis {
+            runBlocking {
+                val batches = (1..tasks).chunked(batchSize)
+                for (batch in batches) {
+                    val testTasks = batch.map { i -> TestTask("test$i") }
+                    val batchResults = taskScheduler.publishEventBulk(testTasks)
+                    result += batchResults.sum()
+                }
+            }
+        }
+        return if (result == tasks) {
+            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
+        } else {
+            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
+        }
+    }
+
+    @GetMapping("/executeTestTask")
+    fun executeTestTask(@RequestParam(defaultValue = "1") taskCount: Int?): ResponseEntity<Response<Long>> {
+        val tasks = taskCount ?: 0
+        var totalResult = 0
+        val time = measureTimeMillis {
+            runBlocking {
+                val results = (1..tasks).map {
+                    async {
+                        taskScheduler.execute {
+                            delay(10)
+                            1
+                        }
+                    }
+                }
+                totalResult = results.awaitAll().sum()
+            }
+        }
+        return if (totalResult == tasks) {
+            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
+        } else {
+            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
+        }
+    }
+
+    @GetMapping("/executeBulkTestTask")
+    fun executeBulkTestTask(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
+        val tasks = totalTasks ?: 100 // 기본값 설정
+        var resultCode = ResultCode.FAILURE
+        val time = measureTimeMillis {
+            runBlocking {
+                val results = taskScheduler.executeBulk((1..tasks).map {
+                    suspend {
+                        delay(10)
+                        1
+                    }
+                })
+                resultCode = if (results.all { it == 1 }) {
+                    ResultCode.SUCCESS
+                } else {
+                    ResultCode.FAILURE
+                }
+            }
+        }
+        return ResponseEntity.ok(Response(resultCode, data = time))
+    }
+
+
+
+
 
 //    @DeleteMapping("/redis/flushall")
 //    fun flushAllRedis(): ResponseEntity<Response<String>> {

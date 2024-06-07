@@ -1,5 +1,7 @@
 package org.example.projectnu.test.service
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.example.projectnu.common.event.args.TaskEvent
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.test.event.args.TestTask
@@ -11,16 +13,8 @@ class TestService(
     private val taskScheduler: MultiTaskScheduler
 
 ) {
-    var taskCount : Int = 1
+    var taskCount : Int = 0
     fun scheduleTest(i : Int) {
         taskCount = i
-    }
-
-    @Scheduled(fixedRate = 1000)
-    fun scheduleTest() {
-        for (i in 1..taskCount) {
-            val testTask = TestTask("test$i")
-            taskScheduler.onApplicationEvent(TaskEvent(testTask))
-        }
     }
 }

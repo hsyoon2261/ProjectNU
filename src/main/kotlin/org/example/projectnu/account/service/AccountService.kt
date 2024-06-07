@@ -1,20 +1,17 @@
 package org.example.projectnu.account.service
 
-import jakarta.transaction.Transactional
-import org.example.projectnu.account.dto.response.AccountResponseDto
 import org.example.projectnu.account.dto.request.RegisterAccountRequestDto
 import org.example.projectnu.account.dto.request.SignInRequestDto
+import org.example.projectnu.account.dto.response.AccountResponseDto
 import org.example.projectnu.account.dto.response.SignInResponseDto
 import org.example.projectnu.account.entity.Account
 import org.example.projectnu.account.repository.AccountRepository
 import org.example.projectnu.account.status.UserRole
 import org.example.projectnu.common.exception.custom.BadRequestException
-import org.example.projectnu.common.security.CustomUserDetails
 import org.example.projectnu.common.security.JwtTokenProvider
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
 import org.example.projectnu.common.util.mapper.Authorize
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 
 @Service

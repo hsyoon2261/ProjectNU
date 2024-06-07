@@ -1,42 +1,58 @@
 package org.example.projectnu.common.scheduler
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.example.projectnu.common.event.args.Task
 import org.example.projectnu.common.event.args.TaskEvent
-import org.springframework.context.ApplicationListener
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import java.util.concurrent.CopyOnWriteArrayList
 
 @Component
-class MultiTaskScheduler : ApplicationListener<TaskEvent>{
-    private val workers: MutableList<Worker> = CopyOnWriteArrayList()
+class MultiTaskScheduler {
+    private val _eventFlow = MutableSharedFlow<TaskEvent<*>>(extraBufferCapacity = 2000)
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    private val workers: MutableList<Worker> = mutableListOf()
     private var workerIdCounter = 1
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val mutex = Mutex() // 추가: Mutex 객체
+
 
     init {
         addWorker()
+        startListeningToEvents()
+        startProcessingTasks()
+        startCheckingIdleWorkers()
     }
 
-    override fun onApplicationEvent(event: TaskEvent) {
-        assignTask(event.task)
+    private fun startListeningToEvents() {
+        scope.launch {
+            eventFlow.collect { event ->
+                assignTask(event)
+            }
+        }
     }
 
-    @Synchronized
-    private fun assignTask(task: Task) {
-        for (worker in workers) {
-            if (worker.status == WorkerStatus.READY) {
-                worker.addTask(task)
-                return
+    private suspend fun assignTask(taskEvent: TaskEvent<*>) {
+        mutex.withLock { // 추가: 뮤텍스 사용하여 동기화
+            for (worker in workers) {
+                if (worker.status == WorkerStatus.READY) {
+                    worker.addTask(taskEvent)
+                    return
+                }
             }
-        }
-        for (worker in workers) {
-            if (worker.status == WorkerStatus.IDLE) {
-                worker.addTask(task)
-                return
+            for (worker in workers) {
+                if (worker.status == WorkerStatus.IDLE) {
+                    worker.addTask(taskEvent)
+                    return
+                }
             }
-        }
 
-        addWorker()
-        workers.last().addTask(task)
+            addWorker()
+            workers.last().addTask(taskEvent)
+        }
     }
 
     private fun addWorker() {
@@ -45,26 +61,80 @@ class MultiTaskScheduler : ApplicationListener<TaskEvent>{
         println("Worker ${worker.id} added.")
     }
 
-    @Scheduled(fixedRate = 5000)
-    public fun processTasks() {
-        for (worker in workers) {
-            if (worker.status == WorkerStatus.READY || worker.status == WorkerStatus.FULL) {
-                worker.processTasks()
+    private fun startProcessingTasks() {
+        scope.launch {
+            while (isActive) {
+                delay(1000)
+                mutex.withLock { // 추가: 뮤텍스 사용하여 동기화
+                    for (worker in workers) {
+                        if (worker.status == WorkerStatus.READY || worker.status == WorkerStatus.FULL) {
+                            worker.processTasks()
+                        }
+                    }
+                }
             }
         }
     }
 
-    @Scheduled(fixedRate = 10000)
-    public fun checkIdleWorkers() {
-        val iterator = workers.iterator()
-        while (iterator.hasNext()) {
-            val worker = iterator.next()
-            worker.markIdle()
-            worker.stopIfIdle()
+
+    private fun startCheckingIdleWorkers() {
+        scope.launch {
+            while (isActive) {
+                delay(10000)
+                val iterator = workers.iterator()
+                while (iterator.hasNext()) {
+                    val worker = iterator.next()
+                    worker.markIdle()
+                    worker.stopIfIdle()
+                }
+            }
         }
     }
 
+    suspend fun <T> publishEvent(task: Task<T>): T {
+        val result = CompletableDeferred<T>()
+        val event = TaskEvent(task, result)
+        _eventFlow.emit(event)
+        return result.await()
+    }
+
+    suspend fun <T> publishEventBulk(tasks: List<Task<T>>): List<T> {
+        val results = tasks.map { task ->
+            val result = CompletableDeferred<T>()
+            val event = TaskEvent(task, result)
+            event to result
+        }
+
+        results.forEach { (event, _) ->
+            _eventFlow.emit(event)
+        }
+
+        return results.map { (_, result) ->
+            result.await()
+        }
+    }
+
+    suspend fun <T> execute(task: suspend () -> T): T {
+        return publishEvent(object : Task<T> {
+            override val name: String = "Anonymous Task"
+            override suspend fun execute(): T = task()
+        })
+    }
+
+    suspend fun <T> executeBulk(tasks: List<suspend () -> T>): List<T> {
+        val taskList = tasks.map { task ->
+            object : Task<T> {
+                override val name: String = "Anonymous Task"
+                override suspend fun execute(): T = task()
+            }
+        }
+
+        return publishEventBulk(taskList)
+    }
+
+
     fun shutdown() {
+        scope.cancel()
         for (worker in workers) {
             worker.stop()
         }

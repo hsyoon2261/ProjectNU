@@ -1,12 +1,13 @@
 package org.example.projectnu.common.event.args
 
-import org.springframework.context.ApplicationEvent
+import kotlinx.coroutines.CompletableDeferred
 
-class TaskEvent(val task: Task) : ApplicationEvent(task)
+data class TaskEvent<T>(val task: Task<T>, val result: CompletableDeferred<T>)
 
-interface Task {
+
+interface Task<T> {
     val name: String
-    fun execute()
+    suspend fun execute(): T
 }
 
 
