@@ -12,7 +12,6 @@ import java.io.IOException
 
 @Component
 class RequestLoggingFilter : OncePerRequestFilter() {
-    private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {

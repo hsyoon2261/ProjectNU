@@ -18,6 +18,16 @@ class SlackService(
         restTemplate.postForEntity(url, payload, String::class.java)
     }
 
+    fun sendMessage(channel: String, name: String, message: String) {
+        val payload = mapOf(
+            "text" to message,
+            "channel" to channel,
+            "username" to name
+        )
+        val url = slackProperties.webhook.url
+        restTemplate.postForEntity(url, payload, String::class.java)
+    }
+
     fun getSlackUrlString(): String {
         val url = slackProperties.webhook.url
         return url

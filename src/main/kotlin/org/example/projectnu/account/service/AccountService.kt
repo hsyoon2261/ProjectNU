@@ -1,5 +1,6 @@
 package org.example.projectnu.account.service
 
+import jakarta.transaction.Transactional
 import org.example.projectnu.account.dto.response.AccountResponseDto
 import org.example.projectnu.account.dto.request.RegisterAccountRequestDto
 import org.example.projectnu.account.dto.request.SignInRequestDto

@@ -4,12 +4,16 @@ import io.swagger.v3.oas.annotations.Operation
 import org.example.projectnu.account.service.AccountService
 import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.dto.Response
+import org.example.projectnu.common.event.args.TaskEvent
 import org.example.projectnu.common.`object`.ResultCode
+import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.EmailService
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.service.RedisService
 import org.example.projectnu.common.util.AesUtil
-import org.springframework.beans.factory.annotation.Autowired
+import org.example.projectnu.jira.service.CaptureJiraService
+import org.example.projectnu.test.event.args.TestTask
+import org.example.projectnu.test.service.TestService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,7 +25,10 @@ class TestController(
     private val slackService: SlackService,
     private val emailService: EmailService,
     private val accountService: AccountService,
-    private val redisService: RedisService
+    private val redisService: RedisService,
+    private val jiraService: CaptureJiraService,
+    private val taskScheduler: MultiTaskScheduler,
+    private val testService: TestService,
 ) {
 
     @GetMapping("/success")
@@ -108,6 +115,31 @@ class TestController(
     fun deleteRedisValue(@RequestParam key: String): ResponseEntity<Response<String>> {
         redisService.delete(key)
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Value deleted successfully"))
+    }
+
+    @GetMapping("/jira")
+    fun getJira(): ResponseEntity<Response<String>> {
+        val data = jiraService.getSamplePage()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = data))
+    }
+
+    @GetMapping("/workers/tasks")
+    fun scheduleTasks(@RequestParam count: Int?): ResponseEntity<Response<String>> {
+        val taskCount = count ?: 1
+        testService.scheduleTest(taskCount)
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Scheduled $taskCount tasks"))
+    }
+
+    @GetMapping("/workers/status")
+    fun getWorkersStatus(): ResponseEntity<Response<Map<String, Any>>> {
+        val status = taskScheduler.getWorkersStatus()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = status))
+    }
+
+    @GetMapping("/workers/pending-tasks")
+    fun getTotalPendingTasks(): ResponseEntity<Response<Int>> {
+        val pendingTasks = taskScheduler.getTotalPendingTasks()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = pendingTasks))
     }
 
 //    @DeleteMapping("/redis/flushall")
