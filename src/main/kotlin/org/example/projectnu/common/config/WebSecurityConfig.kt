@@ -2,7 +2,9 @@ package org.example.projectnu.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.example.projectnu.account.repository.AccountRepository
+import org.example.projectnu.common.exception.AuthenticationExceptionHandler
 import org.example.projectnu.common.filter.ExceptionFilter
+import org.example.projectnu.common.filter.ForbiddenCheckFilter
 import org.example.projectnu.common.filter.JwtTokenFilter
 import org.example.projectnu.common.filter.RequestLoggingFilter
 import org.example.projectnu.common.security.JwtTokenProvider
@@ -23,7 +25,9 @@ class WebSecurityConfig(
     private val requestLoggingFilter: RequestLoggingFilter,
     private val objectMapper: ObjectMapper,
     //todo 이거 이상한가..
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val forbiddenCheckFilter: ForbiddenCheckFilter,
+    private val authenticationExceptionHandler: AuthenticationExceptionHandler
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -44,9 +48,13 @@ class WebSecurityConfig(
                     ).permitAll()
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }
-            .addFilterBefore(JwtTokenFilter(jwtTokenProvider,accountRepository), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(forbiddenCheckFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtTokenFilter(jwtTokenProvider,accountRepository), ForbiddenCheckFilter::class.java)
             .addFilterBefore(requestLoggingFilter, JwtTokenFilter::class.java)
             .addFilterBefore(ExceptionFilter(objectMapper), RequestLoggingFilter::class.java)
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint(authenticationExceptionHandler)
+            }
 
             .csrf { it.disable() }
             .httpBasic { it.disable() }
