@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 class MenuController(private val menuService: MenuService) {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    fun getAllMenus(): ResponseEntity<Response<List<MenuListDto>>> {
+    suspend fun getAllMenus(): ResponseEntity<Response<List<MenuListDto>>> {
         val menus = menuService.getAllMenus()
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = menus))
     }

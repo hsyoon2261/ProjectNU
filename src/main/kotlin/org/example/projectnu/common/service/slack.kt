@@ -1,6 +1,7 @@
 package org.example.projectnu.common.service
 
 import org.example.projectnu.common.config.SlackProperties
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 

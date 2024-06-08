@@ -1,29 +1,29 @@
 package org.example.projectnu.menu.service
 
 import org.example.projectnu.common.exception.custom.BadRequestException
+import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.dto.MenuListRequestDto
 import org.example.projectnu.menu.entity.MenuList
+import org.example.projectnu.menu.mapper.toEntity
 import org.example.projectnu.menu.repository.MenuListRepository
+import org.example.projectnu.menu.service.internal.MenuCore
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
 class MenuService(
     private val repository: MenuListRepository,
     private val slackService: SlackService,
+    private val scheduler: MultiTaskScheduler,
+    private val menuListRepository: MenuListRepository,
 ) {
-    fun getAllMenus(): List<MenuListDto> {
-        return repository.findAll().map { menu ->
-            MenuListDto(
-                id = menu.id,
-                name = menu.name,
-                category = menu.category,
-                description = menu.description,
-                url = menu.url
-            )
-        }
+    private val core = MenuCore(repository,scheduler)
+
+    suspend fun getAllMenus(): List<MenuListDto> {
+        return core.getAllMenusCore()
     }
 
     fun getMenuById(id: Long): MenuListDto? {
@@ -39,6 +39,7 @@ class MenuService(
         }
     }
 
+    @Transactional
     fun createMenu(menuDto: MenuListRequestDto): MenuListDto {
         if (repository.existsByName(menuDto.name)) {
             throw BadRequestException("Menu with name '${menuDto.name}' already exists")
@@ -80,6 +81,20 @@ class MenuService(
         )
     }
 
+    @Transactional
+    suspend fun updateMany(menuDtos : List<MenuListRequestDto>) {
+
+        val menuDtoSet = menuDtos.distinctBy { it.name }
+
+        val updateList = menuDtoSet.map { menu ->
+            val res = menu.toEntity()
+            val legacyMenu = repository.findByName(menu.name)
+            if (legacyMenu != null) res.id = legacyMenu.id
+            res
+        }
+        menuListRepository.saveAll(updateList)
+    }
+
     fun deleteMenu(id: Long) {
         if (repository.existsById(id)) {
             repository.deleteById(id)
@@ -88,12 +103,12 @@ class MenuService(
         }
     }
 
-    fun getRandomThreeMenuItems(): List<MenuListDto> {
+    suspend fun getRandomThreeMenuItems(): List<MenuListDto> {
         val allMenuList = getAllMenus()
-        return getRandomMenuItems(allMenuList,3);
+        return getRandomMenuItems(allMenuList, 3);
     }
 
-    private fun getRandomMenuItems(menuList: List<MenuListDto>, count: Int): List<MenuListDto>{
+    private fun getRandomMenuItems(menuList: List<MenuListDto>, count: Int): List<MenuListDto> {
         if (menuList.size <= count) {
             return menuList
         }

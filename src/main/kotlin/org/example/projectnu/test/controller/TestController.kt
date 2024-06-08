@@ -16,6 +16,8 @@ import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
 import org.example.projectnu.jira.service.CaptureJiraService
 import org.example.projectnu.test.event.args.TestTask
+import org.example.projectnu.test.service.CustomRequest
+import org.example.projectnu.test.service.CustomResponse
 import org.example.projectnu.test.service.TestService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -258,6 +260,35 @@ class TestController(
             }
         }
         return ResponseEntity.ok(Response(resultCode, data = time))
+    }
+
+    @GetMapping("/compareAsyncProcess")
+    fun compareAsyncProcess(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
+        val tasks = totalTasks ?: 100 // 기본값 설정
+        var resultCode = ResultCode.FAILURE
+        val time = measureTimeMillis {
+            runBlocking {
+                val deferredResults = (1..tasks).map {
+                    async {
+                        delay(10)
+                        1
+                    }
+                }
+                val results = deferredResults.awaitAll()
+                resultCode = if (results.all { it == 1 }) {
+                    ResultCode.SUCCESS
+                } else {
+                    ResultCode.FAILURE
+                }
+            }
+        }
+        return ResponseEntity.ok(Response(resultCode, data = time))
+    }
+
+    @GetMapping("/callee/test")
+    fun calleeTest(): ResponseEntity<Response<List<CustomResponse>>>{
+        val res = testService.invoke(CustomRequest("hello"))
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = res))
     }
 
 
