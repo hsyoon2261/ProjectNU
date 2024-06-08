@@ -1,5 +1,6 @@
 package org.example.projectnu.test.controller
 
+
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,9 +20,13 @@ import org.example.projectnu.test.event.args.TestTask
 import org.example.projectnu.test.service.CustomRequest
 import org.example.projectnu.test.service.CustomResponse
 import org.example.projectnu.test.service.TestService
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
 import kotlin.system.measureTimeMillis
 
 @RedisIndex(3)
@@ -290,7 +295,20 @@ class TestController(
         val res = testService.invoke(CustomRequest("hello"))
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = res))
     }
+    @GetMapping("/webcrol")
+    fun getWeb(@RequestParam url: String): ResponseEntity<String> {
+        val restTemplate = RestTemplate()
+        val data = restTemplate.getForEntity(url, String::class.java)
 
+        // HTML 파싱 (필요한 경우)
+        val document: Document = Jsoup.parse(data.body)
+        val prettyHtml = document.toString()
+
+        val headers = HttpHeaders()
+        headers.contentType = org.springframework.http.MediaType.TEXT_HTML
+
+        return ResponseEntity(prettyHtml, headers, HttpStatus.OK)
+    }
 
 
 
