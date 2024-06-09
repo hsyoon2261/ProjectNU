@@ -44,7 +44,8 @@ class WebSecurityConfig(
                         "/configuration/**",
                         "/test/**",
                         "/redis-test/**",
-                        "/api/accounts/signin",
+                        "/api/accounts/signin/**",
+                        "/api/accounts/oauth/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }
@@ -62,3 +63,4 @@ class WebSecurityConfig(
         return http.build()
     }
 }
+//http://localhost:8080/api/accounts/oauth/google/callback

@@ -8,6 +8,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.example.projectnu.account.service.AccountService
 import org.example.projectnu.common.annotation.RedisIndex
+import org.example.projectnu.common.config.GoogleProperties
+import org.example.projectnu.common.config.OAuth2Properties
+import org.example.projectnu.common.config.OAuth2Provider
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
@@ -16,7 +19,6 @@ import org.example.projectnu.common.service.RedisService
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
 import org.example.projectnu.jira.service.CaptureJiraService
-import org.example.projectnu.test.event.args.TestTask
 import org.example.projectnu.test.service.CustomRequest
 import org.example.projectnu.test.service.CustomResponse
 import org.example.projectnu.test.service.TestService
@@ -40,6 +42,7 @@ class TestController(
     private val jiraService: CaptureJiraService,
     private val taskScheduler: MultiTaskScheduler,
     private val testService: TestService,
+    private val oAuth2Properties: OAuth2Properties
 ) {
 
     @GetMapping("/success")
@@ -160,61 +163,13 @@ class TestController(
         val time = measureTimeMillis {
             runBlocking {
                 for (i in 1..tasks) {
-                    val testTask = TestTask("test$i")
-                    result += testTask.execute()
+                    delay(10)
+                    result += 1
                 }
             }
         }
         val totalResult = totalTasks
         return if (result == totalResult) {
-            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
-        } else {
-            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
-        }
-    }
-
-    @GetMapping("/schedulerTest")
-    fun schedulerTest(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
-        var result = 0
-        val tasks = totalTasks ?: 100 // 기본값 설정
-        val batchSize = 50000
-        val time = measureTimeMillis {
-            runBlocking {
-                val batches = (1..tasks).chunked(batchSize)
-                for (batch in batches) {
-                    val deferredResults = batch.map { i ->
-                        val testTask = TestTask("test$i")
-                        async {
-                            taskScheduler.publishEvent(testTask)
-                        }
-                    }
-                    result += deferredResults.awaitAll().sum()
-                }
-            }
-        }
-        return if (result == tasks) {
-            ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
-        } else {
-            ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
-        }
-    }
-
-    @GetMapping("/schedulerTestBulk")
-    fun schedulerTestBulk(@RequestParam(defaultValue = "100") totalTasks: Int?): ResponseEntity<Response<Long>> {
-        var result = 0
-        val tasks = totalTasks ?: 100 // 기본값 설정
-        val batchSize = 50000
-        val time = measureTimeMillis {
-            runBlocking {
-                val batches = (1..tasks).chunked(batchSize)
-                for (batch in batches) {
-                    val testTasks = batch.map { i -> TestTask("test$i") }
-                    val batchResults = taskScheduler.publishEventBulk(testTasks)
-                    result += batchResults.sum()
-                }
-            }
-        }
-        return if (result == tasks) {
             ResponseEntity.ok(Response(ResultCode.SUCCESS, data = time))
         } else {
             ResponseEntity.ok(Response(ResultCode.FAILURE, data = time))
@@ -310,12 +265,19 @@ class TestController(
         return ResponseEntity(prettyHtml, headers, HttpStatus.OK)
     }
 
+    @GetMapping("/oauth2/google")
+    fun getGoogleProperties(): ResponseEntity<GoogleProperties> {
+        val googleProperties = oAuth2Properties.google
+        return ResponseEntity.ok(googleProperties)
+    }
+}
+
 
 
 
 //    @DeleteMapping("/redis/flushall")
 //    fun flushAllRedis(): ResponseEntity<Response<String>> {
 //        redisService.f()
-//        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "All data deleted successfully"))
+//        return RespoㅇㅇㅇnseEntity.ok(Response(ResultCode.SUCCESS, data = "All data deleted successfully"))
 //    }
-}
+

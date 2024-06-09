@@ -14,6 +14,6 @@ class AuthenticationExceptionHandler : AuthenticationEntryPoint {
         response: HttpServletResponse,
         authException: AuthenticationException?
     ) {
-        throw UnAuthorizedException("요청할 권한이 없습니다")
+        throw UnAuthorizedException("인증에 실패하였습니다")
     }
 }

@@ -6,7 +6,6 @@ import org.example.projectnu.common.annotation.Callee
 import org.example.projectnu.common.annotation.Caller
 import org.example.projectnu.common.event.args.TaskEvent
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
-import org.example.projectnu.test.event.args.TestTask
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 

@@ -6,6 +6,7 @@ server:
       charset: UTF-8
       enabled: ${SERVER_ENCODING_ENABLED}
       force: ${SERVER_ENCODING_FORCE}
+
 spring:
   datasource:
     driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
@@ -21,6 +22,7 @@ spring:
         show_sql: ${HIBERNATE_SHOW_SQL}
         format_sql: ${HIBERNATE_FORMAT_SQL}
         highlight_sql: ${HIBERNATE_HIGHLIGHT_SQL}
+
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -32,6 +34,7 @@ spring:
           auth: ${MAIL_SMTP_AUTH}
           starttls:
             enable: ${MAIL_SMTP_STARTTLS_ENABLE}
+
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
@@ -40,14 +43,15 @@ spring:
       max-active: ${REDIS_POOL_MAX_ACTIVE}
       max-idle: ${REDIS_POOL_MAX_IDLE}
       min-idle: ${REDIS_POOL_MIN_IDLE}
+
 logging:
   pattern:
     console: ${LOGGING_PATTERN_CONSOLE}
   level:
     org:
       hibernate:
-        SQL: off
-        type.descriptor.sql: off
+        SQL: TRACE
+
 springdoc:
   packages-to-scan: ${SPRINGDOC_PACKAGES_TO_SCAN}
   default-consumes-media-type: ${SPRINGDOC_DEFAULT_CONSUMES_MEDIA_TYPE}
@@ -57,12 +61,20 @@ springdoc:
     disable-swagger-default-url: ${SWAGGER_UI_DISABLE_DEFAULT_URL}
     display-request-duration: ${SWAGGER_UI_DISPLAY_REQUEST_DURATION}
     operations-sorter: ${SWAGGER_UI_OPERATIONS_SORTER}
+
 slack:
   webhook:
     url: ${SLACK_WEBHOOK_URL}
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+
 jira:
   secret: ${JIRA_SECRET}
   email: ${JIRA_EMAIL}
+oauth2:
+  google:
+    client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH2_GOOGLE_REDIRECT_URI}

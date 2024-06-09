@@ -3,27 +3,25 @@ package org.example.projectnu.common.scheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.example.projectnu.common.event.args.Task
 import org.example.projectnu.common.event.args.TaskEvent
 import org.springframework.stereotype.Component
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 @Component
 class MultiTaskScheduler {
-    private val _eventFlow = MutableSharedFlow<TaskEvent<*>>(extraBufferCapacity = 2000)
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _eventFlow = MutableSharedFlow<TaskEvent<*>>(extraBufferCapacity = 2000000)
+    internal val eventFlow = _eventFlow.asSharedFlow()
 
     private val workers: MutableList<Worker> = mutableListOf()
     private var workerIdCounter = 1
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    private val mutex = Mutex() // 추가: Mutex 객체
-
+    private val executorService = Executors.newCachedThreadPool()
 
     init {
         addWorker()
         startListeningToEvents()
-        startProcessingTasks()
         startCheckingIdleWorkers()
     }
 
@@ -36,44 +34,22 @@ class MultiTaskScheduler {
     }
 
     private suspend fun assignTask(taskEvent: TaskEvent<*>) {
-        mutex.withLock { // 추가: 뮤텍스 사용하여 동기화
-            for (worker in workers) {
-                if (worker.status == WorkerStatus.READY) {
-                    worker.addTask(taskEvent)
-                    return
-                }
-            }
-            for (worker in workers) {
-                if (worker.status == WorkerStatus.IDLE) {
-                    worker.addTask(taskEvent)
-                    return
-                }
-            }
 
-            addWorker()
-            workers.last().addTask(taskEvent)
+        for (worker in workers) {
+            if (worker.status == WorkerStatus.READY || worker.status == WorkerStatus.IDLE) {
+                worker.addTask(taskEvent)
+                return
+            }
         }
+
+        addWorker().addTask(taskEvent)
+
     }
 
-    private fun addWorker() {
+    private fun addWorker(): Worker {
         val worker = Worker(workerIdCounter++)
         workers.add(worker)
-        println("Worker ${worker.id} added.")
-    }
-
-    private fun startProcessingTasks() {
-        scope.launch {
-            while (isActive) {
-                delay(1000)
-                mutex.withLock { // 추가: 뮤텍스 사용하여 동기화
-                    for (worker in workers) {
-                        if (worker.status == WorkerStatus.READY || worker.status == WorkerStatus.FULL) {
-                            worker.processTasks()
-                        }
-                    }
-                }
-            }
-        }
+        return worker
     }
 
 
@@ -91,14 +67,14 @@ class MultiTaskScheduler {
         }
     }
 
-    suspend fun <T> publishEvent(task: Task<T>): T {
+    private suspend fun <T> publishEvent(task: Task<T>): T {
         val result = CompletableDeferred<T>()
         val event = TaskEvent(task, result)
         _eventFlow.emit(event)
         return result.await()
     }
 
-    suspend fun <T> publishEventBulk(tasks: List<Task<T>>): List<T> {
+    private suspend fun <T> publishEventBulk(tasks: List<Task<T>>): List<T> {
         val results = tasks.map { task ->
             val result = CompletableDeferred<T>()
             val event = TaskEvent(task, result)
@@ -130,6 +106,10 @@ class MultiTaskScheduler {
         }
 
         return publishEventBulk(taskList)
+    }
+
+    fun <T> executeSync(task: () -> T): Future<T> {
+        return executorService.submit(task)
     }
 
 

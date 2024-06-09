@@ -21,9 +21,13 @@ class ForbiddenCheckFilter(
         val httpRequest = request as HttpServletRequest
         val uri = httpRequest.requestURI
 
-        val isValid = urlCache.computeIfAbsent(uri) { key ->
-            val handlerExecutionChain: HandlerExecutionChain? = handlerMapping.getHandler(httpRequest)
-            handlerExecutionChain != null
+        val isValid = if (uri.startsWith("/swagger-ui/")) {
+            true
+        } else {
+            urlCache.computeIfAbsent(uri) { key ->
+                val handlerExecutionChain: HandlerExecutionChain? = handlerMapping.getHandler(httpRequest)
+                handlerExecutionChain != null
+            }
         }
 
         if (isValid) {

@@ -11,7 +11,7 @@ enum class WorkerStatus {
 }
 
 class Worker(val id: Int) {
-    val taskQueue: BlockingQueue<TaskEvent<*>> = LinkedBlockingQueue()
+    internal val taskQueue: BlockingQueue<TaskEvent<*>> = LinkedBlockingQueue()
     var status: WorkerStatus = WorkerStatus.READY
     var lastFinished: LocalDateTime? = null
 
@@ -33,13 +33,14 @@ class Worker(val id: Int) {
         taskEvent.result.complete(result)
     }
 
-    fun addTask(taskEvent: TaskEvent<*>) {
+    internal fun addTask(taskEvent: TaskEvent<*>) {
         taskQueue.offer(taskEvent)
         if (taskQueue.size >= 100) {
             status = WorkerStatus.FULL
         } else if (status == WorkerStatus.IDLE) {
             status = WorkerStatus.READY
         }
+        processTasks()
     }
 
     fun markIdle() {
