@@ -1,4 +1,4 @@
-package org.example.projectnu.test.controller
+,package org.example.projectnu.test.controller
 
 
 import io.swagger.v3.oas.annotations.Operation
@@ -10,7 +10,7 @@ import org.example.projectnu.account.service.AccountService
 import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.config.GoogleProperties
 import org.example.projectnu.common.config.OAuth2Properties
-import org.example.projectnu.common.config.OAuth2Provider
+import org.example.projectnu.common.dto.Res
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
@@ -19,6 +19,10 @@ import org.example.projectnu.common.service.RedisService
 import org.example.projectnu.common.service.SlackService
 import org.example.projectnu.common.util.AesUtil
 import org.example.projectnu.jira.service.CaptureJiraService
+import org.example.projectnu.menu.dto.MenuListDto
+import org.example.projectnu.menu.repository.MenuListRepository
+import org.example.projectnu.menu.service.MenuListHistoryService
+import org.example.projectnu.menu.service.internal.MenuCore
 import org.example.projectnu.test.service.CustomRequest
 import org.example.projectnu.test.service.CustomResponse
 import org.example.projectnu.test.service.TestService
@@ -42,7 +46,9 @@ class TestController(
     private val jiraService: CaptureJiraService,
     private val taskScheduler: MultiTaskScheduler,
     private val testService: TestService,
-    private val oAuth2Properties: OAuth2Properties
+    private val oAuth2Properties: OAuth2Properties,
+    private val menuListHistoryService: MenuListHistoryService,
+    private val menuListRepository: MenuListRepository
 ) {
 
     @GetMapping("/success")
@@ -246,10 +252,11 @@ class TestController(
     }
 
     @GetMapping("/callee/test")
-    fun calleeTest(): ResponseEntity<Response<List<CustomResponse>>>{
+    fun calleeTest(): ResponseEntity<Response<List<CustomResponse>>> {
         val res = testService.invoke(CustomRequest("hello"))
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = res))
     }
+
     @GetMapping("/webcrol")
     fun getWeb(@RequestParam url: String): ResponseEntity<String> {
         val restTemplate = RestTemplate()
@@ -270,9 +277,19 @@ class TestController(
         val googleProperties = oAuth2Properties.google
         return ResponseEntity.ok(googleProperties)
     }
+
+    @GetMapping("/todaymenu")
+    fun getTodayMenuList(): Res<List<MenuListDto>> {
+        val res =  runBlocking { menuListHistoryService.getTodayMenuList() }
+        return Response(ResultCode.SUCCESS, data = res).toResponseEntity()
+    }
+
+    @GetMapping("/dummyhistory")
+    fun makeDummyHistory(): ResponseEntity<Response<String>> {
+        menuListHistoryService.makeDummyHistorySync()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Dummy history created successfully"))
+    }
 }
-
-
 
 
 //    @DeleteMapping("/redis/flushall")

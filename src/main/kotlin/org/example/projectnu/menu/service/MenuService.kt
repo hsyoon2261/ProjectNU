@@ -1,5 +1,6 @@
 package org.example.projectnu.menu.service
 
+import kotlinx.coroutines.runBlocking
 import org.example.projectnu.common.exception.custom.BadRequestException
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.SlackService

@@ -45,7 +45,8 @@ class WebSecurityConfig(
                         "/test/**",
                         "/redis-test/**",
                         "/api/accounts/signin/**",
-                        "/api/accounts/oauth/**"
+                        "/api/accounts/oauth/**",
+                        "/menus/**",
                     ).permitAll()
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }
