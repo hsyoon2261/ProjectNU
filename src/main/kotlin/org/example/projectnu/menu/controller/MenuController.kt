@@ -2,6 +2,7 @@ package org.example.projectnu.menu.controller
 
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
+import org.example.projectnu.common.util.sync
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.dto.MenuListRequestDto
 import org.example.projectnu.menu.service.MenuService
@@ -15,6 +16,12 @@ class MenuController(private val menuService: MenuService) {
     @GetMapping
     suspend fun getAllMenus(): ResponseEntity<Response<List<MenuListDto>>> {
         val menus = menuService.getAllMenus()
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = menus))
+    }
+
+    @GetMapping("/sync")
+    fun getAllMenusSync(): ResponseEntity<Response<List<MenuListDto>>> {
+        val menus = menuService.getAllMenusSync()
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = menus))
     }
 

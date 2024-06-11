@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import org.example.projectnu.common.exception.custom.BadRequestException
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.SlackService
+import org.example.projectnu.common.util.sync
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.dto.MenuListRequestDto
 import org.example.projectnu.menu.entity.MenuList
@@ -23,11 +24,12 @@ class MenuService(
 ) {
     private val core = MenuCore(repository,scheduler)
 
-    suspend fun getAllMenus(): List<MenuListDto> {
-        return core.getAllMenusCore()
-    }
+    suspend fun getAllMenus(): List<MenuListDto> = core.getAllMenusCore()
+    fun getAllMenusSync(): List<MenuListDto> = core::getAllMenusCore.sync()!!
+
 
     fun getMenuById(id: Long): MenuListDto? {
+
         val menu = repository.findById(id).orElse(null)
         return menu?.let {
             MenuListDto(

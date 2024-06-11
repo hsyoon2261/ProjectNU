@@ -1,4 +1,4 @@
-,package org.example.projectnu.test.controller
+package org.example.projectnu.test.controller
 
 
 import io.swagger.v3.oas.annotations.Operation
@@ -288,6 +288,12 @@ class TestController(
     fun makeDummyHistory(): ResponseEntity<Response<String>> {
         menuListHistoryService.makeDummyHistorySync()
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Dummy history created successfully"))
+    }
+
+    @GetMapping("/sendSlack")
+    fun sendSlack(@RequestParam message: String, @RequestParam channel : String, @RequestParam name:String): ResponseEntity<Response<String>> {
+        slackService.sendMessage(channel, name, message)
+        return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Message sent to slack"))
     }
 }
 
