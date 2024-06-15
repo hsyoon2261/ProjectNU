@@ -2,14 +2,12 @@ package org.example.projectnu.menu.service
 
 import kotlinx.coroutines.runBlocking
 import org.example.projectnu.menu.dto.MenuListDto
-import org.example.projectnu.menu.entity.MenuList
 import org.example.projectnu.menu.entity.MenuListHistory
 import org.example.projectnu.menu.mapper.toDto
 import org.example.projectnu.menu.mapper.toEntity
 import org.example.projectnu.menu.repository.MenuListHistoryRepository
 import org.springframework.stereotype.Service
 import java.time.*
-import java.time.temporal.ChronoUnit
 
 @Service
 class MenuListHistoryService(
@@ -35,7 +33,7 @@ class MenuListHistoryService(
         menuListHistoryRepository.saveAll(histories)
     }
 
-    fun makeDummyHistorySync(){
+    fun makeDummyHistorySync() {
         runBlocking {
             makeDummyHistory()
         }
@@ -43,7 +41,8 @@ class MenuListHistoryService(
 
 
     fun getRecentHistories(): List<MenuListHistory> {
-        val sevenDaysAgo = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(7).toLocalDate().atStartOfDay().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime()
+        val sevenDaysAgo = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(7).toLocalDate().atStartOfDay()
+            .atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime()
         return menuListHistoryRepository.findRecentHistories(sevenDaysAgo)
     }
 
@@ -51,7 +50,7 @@ class MenuListHistoryService(
 
         val recentHistories = getRecentHistories()
         val weightedList = menuListDto.flatMap { menu -> List(10) { menu } }.toMutableList()
-        val recentFilteredHistories  = recentHistories
+        val recentFilteredHistories = recentHistories
             .filter { history ->
                 val dayOfWeek = history.selectedAt?.dayOfWeek
                 dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY

@@ -1,13 +1,10 @@
 package org.example.projectnu.common.swagger
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-import io.swagger.v3.oas.models.responses.ApiResponse
-import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

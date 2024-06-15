@@ -3,9 +3,9 @@ package org.example.projectnu.account.controller
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.example.projectnu.account.dto.request.GoogleOAuthCallbackParams
-import org.example.projectnu.account.dto.response.AccountResponseDto
 import org.example.projectnu.account.dto.request.RegisterAccountRequestDto
 import org.example.projectnu.account.dto.request.SignInRequestDto
+import org.example.projectnu.account.dto.response.AccountResponseDto
 import org.example.projectnu.account.dto.response.SignInResponseDto
 import org.example.projectnu.account.oauth2.GoogleOAuth2Service
 import org.example.projectnu.account.service.AccountService
@@ -32,7 +32,7 @@ class AccountController(
     @PostMapping("/signin")
     fun signIn(@RequestBody signInRequest: SignInRequestDto, request: HttpServletRequest): Res<SignInResponseDto> {
         val jSessionId = Authorize.getJSession(request)
-        val res = Response(ResultCode.SUCCESS, data = accountService.signIn(signInRequest,jSessionId))
+        val res = Response(ResultCode.SUCCESS, data = accountService.signIn(signInRequest, jSessionId))
         return res.toResponseEntity()
     }
 
@@ -48,9 +48,11 @@ class AccountController(
         @ModelAttribute params: GoogleOAuthCallbackParams
     ): Res<String> {
         val accessToken = googleOAuth2Service.getGoogleAccessToken(params.code)
-        return Response(ResultCode.SUCCESS, data = "OAuth callback handled successfully $accessToken").toResponseEntity()
+        return Response(
+            ResultCode.SUCCESS,
+            data = "OAuth callback handled successfully $accessToken"
+        ).toResponseEntity()
     }
-
 
 
 }

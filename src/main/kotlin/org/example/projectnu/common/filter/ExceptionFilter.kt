@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class ExceptionFilter(
     private val objectMapper: ObjectMapper
-): OncePerRequestFilter() {
+) : OncePerRequestFilter() {
     private val log = LoggerFactory.getLogger(this::class.simpleName)
 
     override fun doFilterInternal(
@@ -26,7 +26,7 @@ class ExceptionFilter(
         } catch (e: BasicException) {
             sendError(response, e.resultCode, e.message)
         } catch (e: Exception) {
-            sendError(response, ResultCode.INTERNAL_SERVER_ERROR, e.message )
+            sendError(response, ResultCode.INTERNAL_SERVER_ERROR, e.message)
         }
 
     }

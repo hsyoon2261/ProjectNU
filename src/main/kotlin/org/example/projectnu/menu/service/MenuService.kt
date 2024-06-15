@@ -1,6 +1,5 @@
 package org.example.projectnu.menu.service
 
-import kotlinx.coroutines.runBlocking
 import org.example.projectnu.common.exception.custom.BadRequestException
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.common.service.SlackService
@@ -13,7 +12,6 @@ import org.example.projectnu.menu.repository.MenuListRepository
 import org.example.projectnu.menu.service.internal.MenuCore
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @Service
 class MenuService(
@@ -22,7 +20,7 @@ class MenuService(
     private val scheduler: MultiTaskScheduler,
     private val menuListRepository: MenuListRepository,
 ) {
-    private val core = MenuCore(repository,scheduler)
+    private val core = MenuCore(repository, scheduler)
 
     suspend fun getAllMenus(): List<MenuListDto> = core.getAllMenusCore()
     fun getAllMenusSync(): List<MenuListDto> = core::getAllMenusCore.sync()!!
@@ -85,7 +83,7 @@ class MenuService(
     }
 
     @Transactional
-    suspend fun updateMany(menuDtos : List<MenuListRequestDto>) {
+    suspend fun updateMany(menuDtos: List<MenuListRequestDto>) {
 
         val menuDtoSet = menuDtos.distinctBy { it.name }
 

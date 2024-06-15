@@ -2,6 +2,7 @@ package org.example.projectnu.common.dto
 
 import org.example.projectnu.common.`object`.ResultCode
 import org.springframework.http.ResponseEntity
+
 typealias Res<T> = ResponseEntity<Response<T>>
 
 data class Response<T>(

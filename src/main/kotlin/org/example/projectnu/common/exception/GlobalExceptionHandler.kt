@@ -2,7 +2,7 @@ package org.example.projectnu.common.exception
 
 import jakarta.validation.ConstraintViolationException
 import org.example.projectnu.common.dto.Response
-import org.example.projectnu.common.exception.custom.*
+import org.example.projectnu.common.exception.custom.BasicException
 import org.example.projectnu.common.`object`.ResultCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +25,7 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(Response(ResultCode.NOT_VALID, message = "Validation failed: $errors"))
     }
+
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintViolationExceptions(ex: ConstraintViolationException): ResponseEntity<Response<String>> {
         val errors = ex.constraintViolations.joinToString(", ") { it.message }

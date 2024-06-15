@@ -1,6 +1,5 @@
 package org.example.projectnu.menu.service.internal
 
-import kotlinx.coroutines.runBlocking
 import org.example.projectnu.common.scheduler.MultiTaskScheduler
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.mapper.toDto

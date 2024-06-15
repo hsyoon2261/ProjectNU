@@ -3,9 +3,9 @@ package org.example.projectnu.common.aspect
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
-import org.springframework.stereotype.Component
 import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.service.RedisService
+import org.springframework.stereotype.Component
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.kotlinFunction
 
@@ -25,7 +25,10 @@ class RedisIndexAspect(private val redisService: RedisService) {
 
     @Before("execution(* *(..)) && within(@org.example.projectnu.common.annotation.RedisIndex *)")
     fun beforeClass(joinPoint: JoinPoint) {
-        val method = joinPoint.signature.declaringType.getDeclaredMethod(joinPoint.signature.name, *joinPoint.args.map { it::class.java }.toTypedArray())
+        val method = joinPoint.signature.declaringType.getDeclaredMethod(
+            joinPoint.signature.name,
+            *joinPoint.args.map { it::class.java }.toTypedArray()
+        )
         val methodAnnotation = method.kotlinFunction?.findAnnotation<RedisIndex>()
         val classAnnotation = joinPoint.target::class.findAnnotation<RedisIndex>()
 

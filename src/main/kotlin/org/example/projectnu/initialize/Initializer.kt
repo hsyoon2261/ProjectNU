@@ -19,11 +19,12 @@ class Initializer(private val eventHandler: ApplicationEventPublisher) : Applica
 }
 
 
-enum class InitType{
+enum class InitType {
     SERVER,
     CACHE,
     DB,
     NOTIFICATION;
+
     companion object {
         val ALL = InitType.entries.toSet()
     }

@@ -1,7 +1,6 @@
 package org.example.projectnu.common.service
 
 import org.example.projectnu.common.config.SlackProperties
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
@@ -42,7 +41,11 @@ class SlackService(
             "text" to testMessage,
             "channel" to "@$name"
         )
-        restTemplate.postForEntity("https://hooks.slack.com/services/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", payload, String::class.java)
+        restTemplate.postForEntity(
+            "https://hooks.slack.com/services/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",
+            payload,
+            String::class.java
+        )
     }
 
 

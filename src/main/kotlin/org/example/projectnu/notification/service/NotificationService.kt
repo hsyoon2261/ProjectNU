@@ -28,21 +28,24 @@ class NotificationService(
         accountService.sendSlackMessageToAdmin(message)
     }
 
-    fun testto(){
+    fun testto() {
 
     }
 
-    fun tettt(){
-        commonScheduler.register( SchedulerStandard(
-            type = SchedulingType.PERIODIC, period = Duration.ofMinutes(1), startTime = null
-        ),::testto)
+    fun tettt() {
+        commonScheduler.register(
+            SchedulerStandard(
+                type = SchedulingType.PERIODIC, period = Duration.ofMinutes(1), startTime = null
+            ), ::testto
+        )
     }
 
     suspend fun schedulerTest() {
         commonScheduler.register(
             SchedulerStandard(
                 type = SchedulingType.PERIODIC, period = Duration.ofMinutes(1), startTime = null
-            ),::sendMenu)
+            ), ::sendMenu
+        )
     }
 }
 

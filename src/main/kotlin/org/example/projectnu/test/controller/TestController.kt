@@ -22,7 +22,6 @@ import org.example.projectnu.jira.service.CaptureJiraService
 import org.example.projectnu.menu.dto.MenuListDto
 import org.example.projectnu.menu.repository.MenuListRepository
 import org.example.projectnu.menu.service.MenuListHistoryService
-import org.example.projectnu.menu.service.internal.MenuCore
 import org.example.projectnu.test.service.CustomRequest
 import org.example.projectnu.test.service.CustomResponse
 import org.example.projectnu.test.service.TestService
@@ -280,7 +279,7 @@ class TestController(
 
     @GetMapping("/todaymenu")
     fun getTodayMenuList(): Res<List<MenuListDto>> {
-        val res =  runBlocking { menuListHistoryService.getTodayMenuList() }
+        val res = runBlocking { menuListHistoryService.getTodayMenuList() }
         return Response(ResultCode.SUCCESS, data = res).toResponseEntity()
     }
 
@@ -291,7 +290,11 @@ class TestController(
     }
 
     @GetMapping("/sendSlack")
-    fun sendSlack(@RequestParam message: String, @RequestParam channel : String, @RequestParam name:String): ResponseEntity<Response<String>> {
+    fun sendSlack(
+        @RequestParam message: String,
+        @RequestParam channel: String,
+        @RequestParam name: String
+    ): ResponseEntity<Response<String>> {
         slackService.sendMessage(channel, name, message)
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Message sent to slack"))
     }

@@ -51,7 +51,7 @@ class WebSecurityConfig(
                     .anyRequest().authenticated()
             }.formLogin { it.disable() }
             .addFilterBefore(forbiddenCheckFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .addFilterBefore(JwtTokenFilter(jwtTokenProvider,accountRepository), ForbiddenCheckFilter::class.java)
+            .addFilterBefore(JwtTokenFilter(jwtTokenProvider, accountRepository), ForbiddenCheckFilter::class.java)
             .addFilterBefore(requestLoggingFilter, JwtTokenFilter::class.java)
             .addFilterBefore(ExceptionFilter(objectMapper), RequestLoggingFilter::class.java)
             .exceptionHandling { exceptions ->

@@ -6,8 +6,8 @@ import java.util.*
 
 object JwtDecoder {
 
-    fun decodeJWT(idTokenString: String): Map<String, String>  {
-        val payload =  extractPayload(idTokenString)
+    fun decodeJWT(idTokenString: String): Map<String, String> {
+        val payload = extractPayload(idTokenString)
         val mapper = jacksonObjectMapper()
         val claimsString = mapper.readValue<Map<String, String>>(payload)
 

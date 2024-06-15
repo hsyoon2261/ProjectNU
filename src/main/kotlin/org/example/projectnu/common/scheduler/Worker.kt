@@ -46,7 +46,8 @@ class Worker(val id: Int) {
     fun markIdle() {
         executor.launch {
             if (status == WorkerStatus.READY && lastFinished != null &&
-                lastFinished!!.plusMinutes(1).isBefore(LocalDateTime.now())) {
+                lastFinished!!.plusMinutes(1).isBefore(LocalDateTime.now())
+            ) {
                 status = WorkerStatus.IDLE
             }
         }

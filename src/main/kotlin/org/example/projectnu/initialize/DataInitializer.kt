@@ -50,6 +50,7 @@ class DataInitializer(
                     val menuList: List<MenuListRequestDto> = mapper.readValue(resource.inputStream)
                     menuService.updateMany(menuList)
                 }
+
                 else -> true
             }
 
@@ -62,8 +63,7 @@ class DataInitializer(
 }
 
 
-
-enum class DataInitType{
+enum class DataInitType {
     Migration,
     Development,
     Hotfix,
@@ -71,6 +71,7 @@ enum class DataInitType{
 
 enum class DbType {
     MENU_LIST;
+
     companion object {
         val ALL = entries.toSet()
     }

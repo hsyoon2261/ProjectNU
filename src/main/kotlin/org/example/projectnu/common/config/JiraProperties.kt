@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "jira")
-data class JiraProperties (
-    var secret : String = "",
-    var email : String = ""
+data class JiraProperties(
+    var secret: String = "",
+    var email: String = ""
 )

@@ -32,8 +32,13 @@ class Account(
             return Account(loginId = loginId, password = AesUtil.encrypt(password, email), email = email, role = role)
         }
 
-        fun createMemberSimple(accountDto : RegisterAccountRequestDto): Account {
-            return Account(loginId = accountDto.loginId, password = AesUtil.encrypt(accountDto.password, accountDto.email), email = accountDto.email, role = UserRole.MEMBER)
+        fun createMemberSimple(accountDto: RegisterAccountRequestDto): Account {
+            return Account(
+                loginId = accountDto.loginId,
+                password = AesUtil.encrypt(accountDto.password, accountDto.email),
+                email = accountDto.email,
+                role = UserRole.MEMBER
+            )
         }
 
         fun toResponseDto(account: Account): AccountResponseDto {

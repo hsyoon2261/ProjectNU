@@ -1,6 +1,5 @@
 package org.example.projectnu.test.controller
 
-import io.swagger.v3.oas.annotations.Operation
 import org.example.projectnu.common.annotation.RedisIndex
 import org.example.projectnu.common.dto.Response
 import org.example.projectnu.common.`object`.ResultCode
@@ -68,7 +67,8 @@ class RedisTestController(private val redisService: RedisService) {
         return if (value != null) {
             ResponseEntity.ok(Response(ResultCode.SUCCESS, data = value))
         } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response(ResultCode.FAILURE, message = "Hash key not found"))
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Response(ResultCode.FAILURE, message = "Hash key not found"))
         }
     }
 
@@ -144,7 +144,10 @@ class RedisTestController(private val redisService: RedisService) {
     }
 
     @DeleteMapping("/zset/remove")
-    fun removeFromZSet(@RequestParam key: String, @RequestParam values: List<String>): ResponseEntity<Response<String>> {
+    fun removeFromZSet(
+        @RequestParam key: String,
+        @RequestParam values: List<String>
+    ): ResponseEntity<Response<String>> {
         redisService.removeFromZSet(key, *values.toTypedArray())
         return ResponseEntity.ok(Response(ResultCode.SUCCESS, data = "Values removed from sorted set successfully"))
     }

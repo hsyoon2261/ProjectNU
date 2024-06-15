@@ -1,6 +1,6 @@
 package org.example.projectnu.account.oauth2
 
-import java.util.UUID
+import java.util.*
 
 open class OAuth2Base {
 

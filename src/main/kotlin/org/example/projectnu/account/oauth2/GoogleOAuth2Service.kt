@@ -1,7 +1,6 @@
 package org.example.projectnu.account.oauth2
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.servlet.http.HttpServletRequest
 import org.example.projectnu.account.dto.request.GoogleTokenRequest
@@ -14,8 +13,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -30,7 +27,7 @@ class GoogleOAuth2Service(
 ) : OAuth2Base() {
     private val googleProperties: GoogleProperties = oAuth2Properties.google
     fun getRedirectGoogleSignInUrl(request: HttpServletRequest): String {
-        val redirectUrl = buildRedirectUrl(request)
+        val redirectUrl = buildRedirectUrl()
         return redirectUrl
     }
 
@@ -64,7 +61,7 @@ class GoogleOAuth2Service(
     }
 
 
-    private fun buildRedirectUrl(request: HttpServletRequest): String {
+    private fun buildRedirectUrl(): String {
         val state = generateRandomState() // 상태 토큰 생성을 위한 메서드
 
         return UriComponentsBuilder.fromUriString(GoogleConstants.oAuthUrl)

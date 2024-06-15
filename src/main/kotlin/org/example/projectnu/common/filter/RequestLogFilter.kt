@@ -1,20 +1,23 @@
 package org.example.projectnu.common.filter
 
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import org.springframework.web.filter.OncePerRequestFilter
-import org.springframework.web.util.ContentCachingRequestWrapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.stereotype.Component
+import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.util.ContentCachingRequestWrapper
 import java.io.IOException
 
 @Component
 class RequestLoggingFilter : OncePerRequestFilter() {
 
     @Throws(IOException::class, ServletException::class)
-    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
         val wrappedRequest = ContentCachingRequestWrapper(request)
         filterChain.doFilter(wrappedRequest, response)
         val curlCommand = buildCurlCommand(wrappedRequest)
