@@ -1,11 +1,13 @@
 package org.example.projectnu.account.oauth2
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.servlet.http.HttpServletRequest
 import org.example.projectnu.common.config.GoogleProperties
 import org.example.projectnu.common.config.OAuth2Properties
 import org.example.projectnu.common.util.JwtDecoder
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -26,6 +28,12 @@ object GoogleConstants {
 class GoogleOAuth2Service(
     private val googleProperties: GoogleProperties = OAuth2Properties().google
 ) : OAuth2Base() {
+
+    @Autowired
+    constructor(mapper: ObjectMapper) : this() {
+
+        this.mapper = mapper
+    }
 
     fun getRedirectGoogleSignInUrl(request: HttpServletRequest): String {
         val redirectUrl = buildRedirectUrl(request)
@@ -63,7 +71,8 @@ class GoogleOAuth2Service(
 
     private fun extractAccessToken(responseBody: String?): String {
         var claim = JwtDecoder.decodeJWT(responseBody!!)
-        return claim["email"] as String
+        val mapper = jacksonObjectMapper()
+        return mapper.writeValueAsString(claim)
     }
 
 
