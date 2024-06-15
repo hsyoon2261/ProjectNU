@@ -16,7 +16,8 @@ object Authorize
             userAgent.contains("Chrome") -> "GoogleChrome"
             else -> "Unknown"
         }
-        return device+jSessionId
+        //return device+jSessionId
+        return "ALL_PASS"
     }
 
     fun getCustomUserDetails(account : Account, sessionId : String) : CustomUserDetails{

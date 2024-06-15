@@ -64,7 +64,7 @@ class JwtTokenFilter(
         if (claims.expiration.after(Date())) return;
 
         val username = claims["loginId"] as String
-        var account = accountRepository.findByLoginId(username)
+        val account = accountRepository.findByLoginId(username)
             ?: throw UnAuthorizedException("Account not found")
 
         val currentSession = Authorize.getJSession(request)

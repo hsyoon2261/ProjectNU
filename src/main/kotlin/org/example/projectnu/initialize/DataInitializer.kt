@@ -1,5 +1,6 @@
 package org.example.projectnu.initialize
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.example.projectnu.account.service.AccountService
@@ -15,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class DataInitializer(
     private val menuService: MenuService,
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val mapper: ObjectMapper = jacksonObjectMapper()
 ) {
 
     @Order(2)
@@ -42,7 +44,6 @@ class DataInitializer(
     private suspend fun InitializeDummyData(): Boolean {
         val resourcePatternResolver = PathMatchingResourcePatternResolver()
         val resources = resourcePatternResolver.getResources("classpath:data/dummy/*.json")
-        var mapper = jacksonObjectMapper()
         resources.forEach { resource ->
             val success = when {
                 resource.filename!!.contains("menu_list") -> {
