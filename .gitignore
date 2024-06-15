@@ -65,4 +65,6 @@ out/
 
 
 # Config
-application.properties
+src/main/resources/*
+!src/main/resources/application.yml
+!src/main/resources/todo.md

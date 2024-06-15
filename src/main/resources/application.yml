@@ -8,6 +8,8 @@ server:
       force: ${SERVER_ENCODING_FORCE}
 
 spring:
+  config:
+    import: "optional:file:/app/config/"
   datasource:
     driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
     url: ${MYSQL_URL}
