@@ -28,13 +28,6 @@ object GoogleConstants {
 class GoogleOAuth2Service(
     private val googleProperties: GoogleProperties = OAuth2Properties().google
 ) : OAuth2Base() {
-
-    @Autowired
-    constructor(mapper: ObjectMapper) : this() {
-
-        this.mapper = mapper
-    }
-
     fun getRedirectGoogleSignInUrl(request: HttpServletRequest): String {
         val redirectUrl = buildRedirectUrl(request)
         return redirectUrl
